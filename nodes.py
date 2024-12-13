@@ -6,10 +6,9 @@ import torchaudio
 import numpy as np
 import os,sys
 import folder_paths
+
 now_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(now_dir)
-input_dir = folder_paths.get_input_directory()
-output_dir = os.path.join(folder_paths.get_output_directory(),"cosyvoice_dubb")
 pretrained_models = os.path.join(now_dir,"pretrained_models")
 
 from modelscope import snapshot_download
@@ -17,7 +16,7 @@ from modelscope import snapshot_download
 import ffmpeg
 import audiosegment
 from srt import parse as SrtPare
-from cosyvoice.cli.cosyvoice import CosyVoice
+from .cosyvoice.cli.cosyvoice import CosyVoice
 
 sft_spk_list = ['中文女', '中文男', '日语男', '粤语女', '英文女', '英文男', '韩语女']
 inference_mode_list = ['预训练音色', '3s极速复刻', '跨语种复刻', '自然语言控制']
@@ -211,6 +210,7 @@ class CosyVoiceDubbingNode:
     CATEGORY = "AIFSH_CosyVoice"
 
     def generate(self,tts_srt,prompt_wav,language,if_single,seed,prompt_srt=None):
+        output_dir = os.path.join(folder_paths.get_output_directory(),"cosyvoice_dubb")
         model_dir = os.path.join(pretrained_models,"CosyVoice-300M")
         snapshot_download(model_id="iic/CosyVoice-300M",local_dir=model_dir)
         set_all_random_seed(seed)
@@ -331,6 +331,7 @@ class CosyVoiceDubbingNode:
 class LoadSRT:
     @classmethod
     def INPUT_TYPES(s):
+        input_dir = folder_paths.get_input_directory()
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f)) and f.split('.')[-1] in ["srt", "txt"]]
         return {"required":
                     {"srt": (sorted(files),)},
